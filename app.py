@@ -48,7 +48,7 @@ if page == '営業情報の入力':
         new_data = pd.DataFrame([[date, selected_district, time.strftime("%H:%M"), amount, payment_method]],
                                 columns=['日付', '地名', '時間', '金額', '支払い形態'])
         new_data.to_csv(data_file, mode='a', header=False, index=False)
-        st.success('記録が正常に追加されました！', key='success_message')
+        st.success('記録が正常に追加されました！')
 
 elif page == '統計情報':
     st.header('統計情報')
