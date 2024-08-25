@@ -31,8 +31,6 @@ page = st.sidebar.selectbox('ページを選択', ['営業情報の入力', '統
 
 if page == '営業情報の入力':
     st.header('営業情報の入力')
-if page == '営業情報の入力':
-    st.header('営業情報の入力')
 
     # 入力フォームの作成
     with st.form(key='entry_form'):
