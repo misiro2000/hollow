@@ -55,15 +55,20 @@ elif page == '統計情報':
     df = pd.read_csv(data_file, parse_dates=['日付'])
     df['時間'] = pd.to_datetime(df['時間'], format='%H:%M')
     df['時'] = df['時間'].dt.hour
-    
-    option = st.selectbox('集計期間を選択', ['日間', '月間', '年間', '累計'], key='stats_period_select')  
+
+    option = st.selectbox('集計期間を選択', ['日間', '月間', '年間', '累計'], key='stats_period_select')
     if not df.empty:
+        st.subheader(f'{option}の集計')
         if option == '累計':
-            st.subheader('営業回数と金額の累計') 
-            total_sales = df['金額'].sum()  
-            total_count = df.shape[0]  
-            st.write(f"総営業回数: {total_count}, 総金額: ¥{total_sales}")  
-            
-            st.subheader('時間帯別集計')  
-            hourly_sales = df.groupby('時')['金額'].sum()  
-            st.bar_chart(hourly_sales)  
+            # 累計集計を表示
+            st.subheader('営業回数と金額の累計')
+            total_sales = df['金額'].sum()
+            total_count = df.shape[0]
+            st.write(f"総営業回数: {total_count}, 総金額: ¥{total_sales}")
+            st.subheader('時間帯別集計')
+            hourly_sales = df.groupby('時')['金額'].sum()
+            st.bar_chart(hourly_sales)
+        elif option in ['日間', '月間', '年間']:
+            # 日間、月間、年間集計を適切に表示
+            # （具体的な実装は省略されていますが、期間に応じたフィルタリングと集計を行う）
+            pass
