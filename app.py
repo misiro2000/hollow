@@ -16,18 +16,15 @@ tokyo_districts = [
 
 st.title('営業情報管理システム')
 
-# データファイルが存在するかチェックし、存在しなければ初期化
+# データファイルの存在確認と初期化
 if not os.path.isfile(data_file) or pd.read_csv(data_file).empty:
     df = pd.DataFrame(columns=['日付', '地名', '時間', '金額', '支払い形態'])
     df.to_csv(data_file, index=False)
 else:
     df = pd.read_csv(data_file, parse_dates=['日付'])
 
-# データフレームが空であるかの確認
-if df.empty:
-    st.write("データがありません。")
-
-page = st.sidebar.selectbox('ページを選択', ['営業情報の入力', '統計情報'], key='page_selection')
+# ページの選択
+page = st.sidebar.selectbox('ページを選択', ['営業情報の入力', '統計情報'], key='page_select')
 
 if page == '営業情報の入力':
     st.header('営業情報の入力')
@@ -37,7 +34,7 @@ if page == '営業情報の入力':
         time_input = st.time_input('時間を入力', key='time_input')
         amount_input = st.number_input('金額を入力', min_value=0, format='%d', key='amount_input')
         payment_method_input = st.selectbox('支払い形態を選択', payment_methods, key='payment_method_select')
-        submit_button = st.form_submit_button(label='送信', key='submit_button')
+        submit_button = st.form_submit_button(label='送信', key='submit_entry_form')
 
     if submit_button:
         new_data = {'日付': date_input, '地名': district_input, '時間': time_input.strftime('%H:%M'), '金額': amount_input, '支払い形態': payment_method_input}
@@ -51,11 +48,11 @@ elif page == '統計情報':
         st.write("データがありません。")
     else:
         df['時'] = df['日付'].dt.hour
-        option = st.selectbox('集計期間を選択', ['日間', '月間', '年間', '累計'], key='stats_period_selection')
+        option = st.selectbox('集計期間を選択', ['日間', '月間', '年間', '累計'], key='stats_period_select')
 
         if option == '日間':
-            selected_day = st.date_input("日付を選択", key='day_selection')
-            filtered_data = df[df['日付'] == pd.Timestamp(selected_day)]
+            selected_day = st.date_input("日付を選択", key='day_select')
+            filtered_data = df[df['日付'].dt.date == selected_day]
             if not filtered_data.empty:
                 sorted_data = filtered_data.sort_values('金額', ascending=False)
                 st.dataframe(sorted_data[['日付', '地名', '金額', '支払い形態']])
@@ -63,8 +60,8 @@ elif page == '統計情報':
                 st.write("選択された日にデータはありません。")
 
         elif option == '月間':
-            selected_month = st.selectbox('月を選択', range(1, 13), key='month_selection')
-            selected_year = st.selectbox('年を選択', df['日付'].dt.year.unique(), key='year_selection')
+            selected_month = st.selectbox('月を選択', range(1, 13), key='month_select')
+            selected_year = st.selectbox('年を選択', df['日付'].dt.year.unique(), key='year_select')
             filtered_data = df[(df['日付'].dt.year == selected_year) & (df['日付'].dt.month == selected_month)]
             if not filtered_data.empty:
                 sorted_data = filtered_data.sort_values('金額', ascending=False)
@@ -73,7 +70,7 @@ elif page == '統計情報':
                 st.write("選択された月にデータはありません。")
 
         elif option == '年間':
-            selected_year = st.selectbox('年を選択', df['日付'].dt.year.unique(), key='year_annual_selection')
+            selected_year = st.selectbox('年を選択', df['日付'].dt.year.unique(), key='year_annual_select')
             filtered_data = df[df['日付'].dt.year == selected_year]
             if not filtered_data.empty:
                 sorted_data = filtered_data.sort_values('金額', ascending=False)
