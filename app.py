@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import os  # osモジュールが正しくインポートされていることを確認
+import os
 from datetime import datetime
 
 # CSVファイルのパス
