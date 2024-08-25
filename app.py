@@ -53,22 +53,33 @@ if page == '営業情報の入力':
 elif page == '統計情報':
     st.header('統計情報')
     df = pd.read_csv(data_file, parse_dates=['日付'])
-    df['時間'] = pd.to_datetime(df['時間'], format='%H:%M')
-    df['時'] = df['時間'].dt.hour
-
+    
     option = st.selectbox('集計期間を選択', ['日間', '月間', '年間', '累計'], key='stats_period_select')
+    
     if not df.empty:
-        st.subheader(f'{option}の集計')
-        if option == '累計':
-            # 累計集計を表示
-            st.subheader('営業回数と金額の累計')
-            total_sales = df['金額'].sum()
-            total_count = df.shape[0]
-            st.write(f"総営業回数: {total_count}, 総金額: ¥{total_sales}")
-            st.subheader('時間帯別集計')
-            hourly_sales = df.groupby('時')['金額'].sum()
-            st.bar_chart(hourly_sales)
-        elif option in ['日間', '月間', '年間']:
-            # 日間、月間、年間集計を適切に表示
-            # （具体的な実装は省略されていますが、期間に応じたフィルタリングと集計を行う）
-            pass
+        df['年'] = df['日付'].dt.year
+        df['月'] = df['日付'].dt.month
+        df['日'] = df['日付'].dt.day
+        
+        if option == '日間':
+            selected_day = st.date_input("日付を選択")
+            filtered_data = df[df['日付'] == selected_day]
+            sorted_data = filtered_data.sort_values('金額', ascending=False)
+            st.dataframe(sorted_data[['日付', '地名', '金額', '支払い形態']])
+        
+        elif option == '月間':
+            selected_month = st.selectbox('月を選択', range(1, 13))
+            selected_year = st.selectbox('年を選択', df['年'].unique())
+            filtered_data = df[(df['年'] == selected_year) & (df['月'] == selected_month)]
+            sorted_data = filtered_data.sort_values('金額', ascending=False)
+            st.dataframe(sorted_data[['日付', '地名', '金額', '支払い形態']])
+        
+        elif option == '年間':
+            selected_year = st.selectbox('年を選択', df['年'].unique())
+            filtered_data = df[df['年'] == selected_year]
+            sorted_data = filtered_data.sort_values('金額', ascending=False)
+            st.dataframe(sorted_data[['日付', '地名', '金額', '支払い形態']])
+        
+        elif option == '累計':
+            sorted_data = df.sort_values('金額', ascending=False)
+            st.dataframe(sorted_data[['日付', '地名', '金額', '支払い形態']])
