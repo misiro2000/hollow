@@ -27,8 +27,10 @@ page = st.sidebar.selectbox('ページを選択', ['営業情報の入力', '統
 if page == '営業情報の入力':
     st.header('営業情報の入力')
     date = st.date_input('日付')
-    new_district = st.text_input('新しい地名を追加 (オプション)')
-    district_selection = st.selectbox('地名', tokyo_districts + ([new_district] if new_district else []))
+    district_selection = st.selectbox('地名', tokyo_districts)
+    new_district_toggle = st.checkbox('新しい地名を追加する')
+    if new_district_toggle:
+        new_district = st.text_input('新しい地名を追加')
     time_input = st.text_input('時間 (HH:MM)')
     amount = st.number_input('金額', min_value=0, format='%d')
     payment_method = st.selectbox('支払い形態', payment_methods)
@@ -42,7 +44,7 @@ if page == '営業情報の入力':
             st.error('時間の形式が正しくありません。HH:MM形式で入力してください。')
 
     if st.button('送信') and valid_time:
-        new_data = pd.DataFrame([[date, district_selection, time.strftime("%H:%M"), amount, payment_method]],
+        new_data = pd.DataFrame([[date, district_selection if not new_district_toggle else new_district, time.strftime("%H:%M"), amount, payment_method]],
                                 columns=['日付', '地名', '時間', '金額', '支払い形態'])
         new_data.to_csv(data_file, mode='a', header=False, index=False)
         st.success('記録が正常に追加されました！')
@@ -55,7 +57,9 @@ elif page == '統計情報':
     df['日'] = df['日付'].dt.day
 
     option = st.selectbox('集計期間を選択', ['日間', '月間', '年間', '累計'])
-  # 日間、月間、年間、累計の集計
+   
+    
+    # 日間、月間、年間、累計の集計
     option = st.selectbox('集計期間を選択', ['日間', '月間', '年間', '累計'])
     if option == '日間':
         selected_date = st.date_input("日付を選択")
