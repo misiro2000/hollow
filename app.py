@@ -21,19 +21,19 @@ tokyo_districts = [
 
 st.title('営業情報管理システム')
 
-page = st.sidebar.selectbox('ページを選択', ['営業情報の入力', '統計情報'])
+page = st.sidebar.selectbox('ページを選択', ['営業情報の入力', '統計情報'], key='page_select')
 
 if page == '営業情報の入力':
     st.header('営業情報の入力')
-    date = st.date_input('日付')
-    new_district_toggle = st.checkbox('新しい地名を追加する')
+    date = st.date_input('日付', key='date_input')
+    new_district_toggle = st.checkbox('新しい地名を追加する', key='new_district_toggle')
     if new_district_toggle:
-        new_district = st.text_input('新しい地名を追加')
+        new_district = st.text_input('新しい地名を追加', key='new_district_input')
     else:
-        district_selection = st.selectbox('地名', tokyo_districts)
-    time_input = st.text_input('時間 (HH:MM)')
-    amount = st.number_input('金額', min_value=0, format='%d')
-    payment_method = st.selectbox('支払い形態', payment_methods)
+        district_selection = st.selectbox('地名', tokyo_districts, key='district_select')
+    time_input = st.text_input('時間 (HH:MM)', key='time_input')
+    amount = st.number_input('金額', min_value=0, format='%d', key='amount_input')
+    payment_method = st.selectbox('支払い形態', payment_methods, key='payment_method_select')
 
     try:
         time = datetime.strptime(time_input, '%H:%M')
@@ -41,14 +41,14 @@ if page == '営業情報の入力':
     except ValueError:
         valid_time = False
         if time_input:
-            st.error('時間の形式が正しくありません。HH:MM形式で入力してください。')
+            st.error('時間の形式が正しくありません。HH:MM形式で入力してください。', key='time_error')
 
-    if st.button('送信') and valid_time:
+    if st.button('送信', key='submit_button') and valid_time:
         selected_district = new_district if new_district_toggle else district_selection
         new_data = pd.DataFrame([[date, selected_district, time.strftime("%H:%M"), amount, payment_method]],
                                 columns=['日付', '地名', '時間', '金額', '支払い形態'])
         new_data.to_csv(data_file, mode='a', header=False, index=False)
-        st.success('記録が正常に追加されました！')
+        st.success('記録が正常に追加されました！', key='success_message')
 
 elif page == '統計情報':
     st.header('統計情報')
@@ -57,28 +57,4 @@ elif page == '統計情報':
     df['月'] = df['日付'].dt.month
     df['日'] = df['日付'].dt.day
 
-    option = st.selectbox('集計期間を選択', ['日間', '月間', '年間', '累計'])
-
-   
-    
-    # 日間、月間、年間、累計の集計
-    option = st.selectbox('集計期間を選択', ['日間', '月間', '年間', '累計'])
-    if option == '日間':
-        selected_date = st.date_input("日付を選択")
-        filtered_data = df[df['日付'] == pd.Timestamp(selected_date)]
-        summary = filtered_data.groupby('住所')['金額'].sum()
-    elif option == '月間':
-        year_month = st.selectbox('年月を選択', pd.unique(df['年'].astype(str) + '-' + df['月'].astype(str)))
-        year, month = map(int, year_month.split('-'))
-        filtered_data = df[(df['年'] == year) & (df['月'] == month)]
-        summary = filtered_data.groupby('住所')['金額'].sum()
-    elif option == '年間':
-        selected_year = st.selectbox('年を選択', pd.unique(df['年']))
-        filtered_data = df[df['年'] == selected_year]
-        summary = filtered_data.groupby('住所')['金額'].sum()
-    elif option == '累計':
-        summary = df.groupby('住所')['金額'].sum()
-
-    st.subheader(f'{option}の集計')
-    st.bar_chart(summary)
-
+    option = st.selectbox('集計期間を選択', ['日間', '月間', '年間', '累計'], key='stats_period_select')
